@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Expense Calculator</title>
+    <style>
+        /* CSS for a clean, professional design */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            min-width: 150px;
+        }
+
+        .input-group input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            padding: 15px 25px;
+            background-color: #3498db;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #expense-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #expense-table th, #expense-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #expense-table th {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        #expense-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        #total-container {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            text-align: right;
+        }
+
+        #total-container h2 {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        
+        #total-amount {
+            font-weight: bold;
+            color: #27ae60; /* A green color for the total */
+            margin-left: 15px;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 650px) {
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .input-group input, button {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Expense Tracker</h1>
+        
+        <div class="input-group">
+            <input type="text" id="item-input" placeholder="Item (e.g., Coffee, Lunch)" required>
+            <input type="number" id="cost-input" placeholder="Cost ($)" step="0.01" required>
+            <button id="add-btn">Add Expense</button>
+        </div>
+
+        <table id="expense-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody id="expense-list">
+                </tbody>
+        </table>
+
+        <div id="total-container">
+            <h2>Total: <span id="total-amount">$0.00</span></h2>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const itemInput = document.getElementById('item-input');
+            const costInput = document.getElementById('cost-input');
+            const addButton = document.getElementById('add-btn');
+            const expenseList = document.getElementById('expense-list');
+            const totalAmountSpan = document.getElementById('total-amount');
+
+            let totalExpenses = 0;
+
+            // Function to format a number as currency
+            const formatCurrency = (amount) => {
+                return `$${amount.toFixed(2)}`;
+            };
+
+            // Function to add a new expense
+            const addExpense = () => {
+                const item = itemInput.value.trim();
+                const cost = parseFloat(costInput.value);
+
+                // Basic validation
+                if (item === '' || isNaN(cost) || cost <= 0) {
+                    alert('Please enter a valid item and a positive cost.');
+                    return;
+                }
+
+                // Create a new row for the expense
+                const newRow = document.createElement('tr');
+
+                // Create cells for item and cost
+                const itemCell = document.createElement('td');
+                itemCell.textContent = item;
+
+                const costCell = document.createElement('td');
+                costCell.textContent = formatCurrency(cost);
+
+                // Append cells to the row
+                newRow.appendChild(itemCell);
+                newRow.appendChild(costCell);
+                
+                // Append the row to the table body
+                expenseList.appendChild(newRow);
+
+                // Update the total
+                totalExpenses += cost;
+                totalAmountSpan.textContent = formatCurrency(totalExpenses);
+
+                // Clear the input fields
+                itemInput.value = '';
+                costInput.value = '';
+                itemInput.focus(); // Set focus back to the item input
+            };
+
+            // Add expense when the button is clicked
+            addButton.addEventListener('click', addExpense);
+
+            // Add expense when Enter key is pressed in the input fields
+            itemInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    costInput.focus();
+                }
+            });
+
+            costInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    addExpense();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
